@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class Catapult : MonoBehaviour
 {
-    [SerializeField] private GameObject _spring;
-    [SerializeField] private GameObject _trigger;
+    [SerializeField] private SpringJoint _spring, _trigger;
+    [SerializeField] private Rigidbody _rigidbody;
     [SerializeField] private Bullet _prefab;
     [SerializeField] private Transform _spawnPoint;
 
@@ -20,7 +20,8 @@ public class Catapult : MonoBehaviour
 
     private void Start()
     {
-        SetTrigger(false, true);
+        _spring.connectedBody = null;
+        _trigger.connectedBody = _rigidbody;
     }
 
     public void Spawn()
@@ -28,7 +29,8 @@ public class Catapult : MonoBehaviour
         if (!_isCharging)
         {
             _isCharging = true;
-            SetTrigger(false, true);
+            _spring.connectedBody = null;
+            _trigger.connectedBody = _rigidbody;
             StartCoroutine(Charge());
         }
     }
@@ -37,7 +39,8 @@ public class Catapult : MonoBehaviour
     {
         if (_bullet != null)
         {
-            SetTrigger(true, false);
+            _spring.connectedBody = _rigidbody;
+            _trigger.connectedBody = null;
             _bullet.ReternPool();
         }
     }
@@ -52,12 +55,6 @@ public class Catapult : MonoBehaviour
 
     private void GetAction(Bullet drop) => drop.gameObject.SetActive(true);
     private void ReturnAction(Bullet drop) => drop.gameObject.SetActive(false);
-
-    private void SetTrigger(bool spring, bool trigger)
-    {
-        _spring.SetActive(spring);
-        _trigger.SetActive(trigger);
-    }
 
     private IEnumerator Charge()
     {
